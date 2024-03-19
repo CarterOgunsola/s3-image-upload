@@ -1,4 +1,5 @@
-//added list of files
+//test 2 add list of files
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -8,25 +9,27 @@ export default function Page() {
   const [uploading, setUploading] = useState(false);
   const [files, setFiles] = useState([]);
 
+  // Define getFiles outside of the useEffect so it can be used elsewhere
+  const getFiles = async () => {
+    try {
+      const response = await fetch("/api/list");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const fileList = await response.json();
+      setFiles(fileList);
+    } catch (error) {
+      console.error(
+        "There has been a problem with your fetch operation:",
+        error,
+      );
+    }
+  };
+
   // Fetch the list of files when the component mounts
   useEffect(() => {
-    async function getFiles() {
-      try {
-        const response = await fetch("/api/list");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const fileList = await response.json();
-        setFiles(fileList);
-      } catch (error) {
-        console.error(
-          "There has been a problem with your fetch operation:",
-          error,
-        );
-      }
-    }
     getFiles();
-  }, []);
+  }, []); // The empty array ensures this effect runs once on mount
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,7 +69,7 @@ export default function Page() {
 
       if (uploadResponse.ok) {
         alert("Upload successful!");
-        getFiles(); // Refresh the list after a successful upload
+        await getFiles(); // Refresh the list after a successful upload
       } else {
         console.error("S3 Upload Error:", uploadResponse);
         alert("Upload failed.");
