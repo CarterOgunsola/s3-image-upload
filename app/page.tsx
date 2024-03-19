@@ -1,35 +1,11 @@
-//test 2 add list of files
-
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useEffect } from "react";
 
 export default function Page() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [files, setFiles] = useState([]);
-
-  // Define getFiles outside of the useEffect so it can be used elsewhere
-  const getFiles = async () => {
-    try {
-      const response = await fetch("/api/list");
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const fileList = await response.json();
-      setFiles(fileList);
-    } catch (error) {
-      console.error(
-        "There has been a problem with your fetch operation:",
-        error,
-      );
-    }
-  };
-
-  // Fetch the list of files when the component mounts
-  useEffect(() => {
-    getFiles();
-  }, []); // The empty array ensures this effect runs once on mount
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,9 +17,8 @@ export default function Page() {
 
     setUploading(true);
 
-    // Assuming your NEXT_PUBLIC_BASE_URL is set correctly in the .env.local
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/upload`,
+      process.env.NEXT_PUBLIC_BASE_URL + "/api/upload",
       {
         method: "POST",
         headers: {
@@ -69,13 +44,11 @@ export default function Page() {
 
       if (uploadResponse.ok) {
         alert("Upload successful!");
-        await getFiles(); // Refresh the list after a successful upload
       } else {
         console.error("S3 Upload Error:", uploadResponse);
         alert("Upload failed.");
       }
     } else {
-      console.error("Error getting pre-signed URL:", response);
       alert("Failed to get pre-signed URL.");
     }
 
@@ -98,21 +71,9 @@ export default function Page() {
           accept="image/png, image/jpeg, video/mp4, text/plain"
         />
         <button type="submit" disabled={uploading}>
-          {uploading ? "Uploading..." : "Upload"}
+          Upload
         </button>
       </form>
-      <section>
-        <h2>Files in S3 Bucket</h2>
-        <ul>
-          {files.map((file, index) => (
-            <li key={index}>
-              <a href={file.url} target="_blank" rel="noopener noreferrer">
-                {file.name}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
     </main>
   );
 }
