@@ -67,8 +67,7 @@ export default function Page() {
               setFile(files[0]);
             }
           }}
-          //accept txt , js and mp4
-          accept="image/png, image/jpeg, video/mp4"
+          accept="image/png, image/jpeg, video/mp4, text/plain"
         />
         <button type="submit" disabled={uploading}>
           Upload
